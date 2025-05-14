@@ -29,4 +29,8 @@
   -H "Content-Type: application/json" \
   -d '{"name":"Анна","email":"anna@mail.ru","message":"Интересует Rolex Submariner"}'
 ```
-Для тестирования и проверки работоспособности запускаем `script.py`
+### Запуск
+- Клонируйте репозиторий `git clone`
+- Установите зависимости `pip install -r requirements.txt`
+- Cоздайте `.env` файл и заполняем его по образцу `.env.example`
+- Запустите `script.py`
