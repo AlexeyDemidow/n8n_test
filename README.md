@@ -30,7 +30,7 @@
   -d '{"name":"Анна","email":"anna@mail.ru","message":"Интересует Rolex Submariner"}'
 ```
 ### Запуск
-- Импортируем `test_workflow.json` и `errors_workflow.json` из архива в n8n.cloud
+- Импортируем `test_workflow.json` и `errors_workflow.json` в n8n.cloud
 - Клонируйте репозиторий `git clone`
 - Установите зависимости `pip install -r requirements.txt`
 - Cоздайте `.env` файл и заполняем его по образцу `.env.example`
