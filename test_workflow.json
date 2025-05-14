@@ -1,0 +1,587 @@
+{
+  "name": "test worlflow",
+  "nodes": [
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Ты – помощник. Дай:\n1. summary не более 200 символов по {{ $json.body.values() }}\n2. brand  {{ $json.body.values() }} (Rolex/Omega/Patek/none)\nВыводи JSON вида {\"summary\":\"…\",\"brand\":\"…\"}.\n\n",
+        "hasOutputParser": true,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.9,
+      "position": [
+        660,
+        0
+      ],
+      "id": "267b1c85-4a26-415c-9215-a3f49a14fc38",
+      "name": "AI Agent",
+      "alwaysOutputData": false
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        620,
+        200
+      ],
+      "id": "bee1226f-6a59-4c86-ab2e-1d9989b776ab",
+      "name": "OpenRouter Chat Model",
+      "credentials": {
+        "openRouterApi": {
+          "id": "HUNkrnKk9iENG3pp",
+          "name": "OpenRouter account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "4a63b785-1c14-488f-801d-3945d43a211e",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        300,
+        0
+      ],
+      "id": "14ae6678-4a0f-44c2-9f48-234ce2cefc59",
+      "name": "Получение данных",
+      "webhookId": "4a63b785-1c14-488f-801d-3945d43a211e"
+    },
+    {
+      "parameters": {
+        "language": "python",
+        "pythonCode": "import re\n\nfor item in _input.all():\n  if not item.json.body.email or not re.match(r'^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\\.[a-zA-Z0-9-.]+$', item.json.body.email): raise ValueError('Неверный формат email')\n  if not item.json.body.message or not item.json.body.message.strip(): raise ValueError('Сообщение не может быть пустым')\nreturn _input.all()"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        480,
+        0
+      ],
+      "id": "82dc16e0-5a80-46c7-ad5b-ae1c7ff3ba11",
+      "name": "Проверка полученных данных"
+    },
+    {
+      "parameters": {
+        "language": "python",
+        "pythonCode": "import json\n\nfor item in _input.all():\n  for i in item.json.output.split('\\n')[1]:\n    res = json.loads(item.json.output.split('\\n')[1])\n    if res.get('brand') == 'none':\n      res['brand'] = ''\n      return res\n    else:\n      return res"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1000,
+        0
+      ],
+      "id": "50216195-bab1-429d-965a-c55c62093e2d",
+      "name": "Форматирование после AI"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "10VyY2pvk0fdsd_hK2fJC70OoLB5EYRoifdlbW5zJ7k8",
+          "mode": "list",
+          "cachedResultName": "Leads_Test",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/10VyY2pvk0fdsd_hK2fJC70OoLB5EYRoifdlbW5zJ7k8/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Leads",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/10VyY2pvk0fdsd_hK2fJC70OoLB5EYRoifdlbW5zJ7k8/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "autoMapInputData",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Имя",
+              "displayName": "Имя",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Summary",
+              "displayName": "Summary",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Brand",
+              "displayName": "Brand",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Дата",
+              "displayName": "Дата",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {
+          "cellFormat": "USER_ENTERED",
+          "useAppend": false
+        }
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        1360,
+        40
+      ],
+      "id": "9b5cd5ac-abfd-4f3c-8a09-237061a82562",
+      "name": "Наполнение Leads",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "e3XO7ogHGjVUuqGE",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "580572487",
+        "text": "=Новый лид: {{ $json['Имя'] }} – {{ $json.Brand }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1360,
+        -180
+      ],
+      "id": "737a3470-5219-4f5f-8754-a92ab984fe65",
+      "name": "Отправка сообщения в бота",
+      "webhookId": "8038b217-8259-473d-b076-003e3ebb7ae5",
+      "credentials": {
+        "telegramApi": {
+          "id": "jvhV6QHfUEtGv1Bd",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "10VyY2pvk0fdsd_hK2fJC70OoLB5EYRoifdlbW5zJ7k8",
+          "mode": "list",
+          "cachedResultName": "Leads_Test",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/10VyY2pvk0fdsd_hK2fJC70OoLB5EYRoifdlbW5zJ7k8/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1455222893,
+          "mode": "list",
+          "cachedResultName": "Watches",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/10VyY2pvk0fdsd_hK2fJC70OoLB5EYRoifdlbW5zJ7k8/edit#gid=1455222893"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "Brand",
+              "lookupValue": "={{ $json.Brand }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        1540,
+        180
+      ],
+      "id": "b5174e52-39ac-41f9-998f-9afa825cf9ef",
+      "name": "Получение данных из Watches",
+      "alwaysOutputData": true,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "e3XO7ogHGjVUuqGE",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "1cb3f1bd-c574-4a26-91de-5697f088c1ac",
+              "leftValue": "={{ $('Наполнение Leads').item.json.Brand }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEquals"
+              }
+            },
+            {
+              "id": "489d2151-a1b9-4041-8c5b-8499f5d1716f",
+              "leftValue": "={{ $('Наполнение Leads').item.json.Brand }}",
+              "rightValue": "={{ $json.Brand }}",
+              "operator": {
+                "type": "string",
+                "operation": "notEquals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1720,
+        180
+      ],
+      "id": "e0fc96c0-b4e6-432b-847e-a9d19118ef29",
+      "name": "Проверка на наличие бренда в Watches"
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "10VyY2pvk0fdsd_hK2fJC70OoLB5EYRoifdlbW5zJ7k8",
+          "mode": "list",
+          "cachedResultName": "Leads_Test",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/10VyY2pvk0fdsd_hK2fJC70OoLB5EYRoifdlbW5zJ7k8/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1455222893,
+          "mode": "list",
+          "cachedResultName": "Watches",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/10VyY2pvk0fdsd_hK2fJC70OoLB5EYRoifdlbW5zJ7k8/edit#gid=1455222893"
+        },
+        "columns": {
+          "mappingMode": "autoMapInputData",
+          "value": {},
+          "matchingColumns": [
+            "Brand"
+          ],
+          "schema": [
+            {
+              "id": "Brand",
+              "displayName": "Brand",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Имя",
+              "displayName": "Имя",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Дата",
+              "displayName": "Дата",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        2080,
+        180
+      ],
+      "id": "66ff8f69-8197-499f-805a-03b7822e6316",
+      "name": "Наполнение Watches",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "e3XO7ogHGjVUuqGE",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "03ed3e9d-bdd5-447c-a3a3-065faa0fe988",
+              "name": "Brand",
+              "value": "={{ $('Наполнение Leads').item.json.Brand }}",
+              "type": "string"
+            },
+            {
+              "id": "67c207bc-c1d2-4141-8cde-8600e5eaef99",
+              "name": "Имя",
+              "value": "={{ $('Наполнение Leads').item.json['Имя'] }}",
+              "type": "string"
+            },
+            {
+              "id": "19c80024-116f-4a7f-b44a-47c05d7e0786",
+              "name": "Дата",
+              "value": "={{ $('Наполнение Leads').item.json['Дата'] }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1900,
+        180
+      ],
+      "id": "64df2e43-fea5-45e2-b067-951a4a917e11",
+      "name": "Поля для Watches"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "010e6281-4fd6-42ae-a094-3c840e99c7cd",
+              "name": "Имя",
+              "value": "={{ $('Получение данных').item.json.body.name }}",
+              "type": "string"
+            },
+            {
+              "id": "9bb8e6e8-e1a0-4153-a2e4-2fa4b38fe582",
+              "name": "Email",
+              "value": "={{ $('Получение данных').item.json.body.email }}",
+              "type": "string"
+            },
+            {
+              "id": "e7bf6fa5-95c3-4193-b8d9-8953c040d451",
+              "name": "Summary",
+              "value": "={{ $json.summary }}",
+              "type": "string"
+            },
+            {
+              "id": "de826f4f-f7b8-4833-8393-c42e06b9d54b",
+              "name": "Brand",
+              "value": "={{ $json.brand }}",
+              "type": "string"
+            },
+            {
+              "id": "168ae174-e2ad-447f-9eb9-22c3df25b97a",
+              "name": "Дата",
+              "value": "={{ $today.format('yyyy-MM-dd') }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1180,
+        0
+      ],
+      "id": "7de9cf92-813a-4020-8352-ecc8be628f6a",
+      "name": "Поля для Leads"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "OpenRouter Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Форматирование после AI",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Получение данных": {
+      "main": [
+        [
+          {
+            "node": "Проверка полученных данных",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Проверка полученных данных": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Форматирование после AI": {
+      "main": [
+        [
+          {
+            "node": "Поля для Leads",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Наполнение Leads": {
+      "main": [
+        [
+          {
+            "node": "Получение данных из Watches",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Отправка сообщения в бота": {
+      "main": [
+        []
+      ]
+    },
+    "Получение данных из Watches": {
+      "main": [
+        [
+          {
+            "node": "Проверка на наличие бренда в Watches",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Проверка на наличие бренда в Watches": {
+      "main": [
+        [
+          {
+            "node": "Поля для Watches",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Поля для Watches",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Поля для Watches": {
+      "main": [
+        [
+          {
+            "node": "Наполнение Watches",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Поля для Leads": {
+      "main": [
+        [
+          {
+            "node": "Наполнение Leads",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Отправка сообщения в бота",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "callerPolicy": "workflowsFromSameOwner",
+    "errorWorkflow": "nosnd1m8bB0bxzAL"
+  },
+  "versionId": "975315c1-7b00-4292-a594-c0361fa38c15",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "b1a124bc9166e611e3a330de37eb024c7411ef434320a799eda0c33bd3a95b6e"
+  },
+  "id": "s3Ia5PTX6eaUc3rn",
+  "tags": []
+}

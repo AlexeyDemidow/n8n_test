@@ -1,0 +1,159 @@
+{
+  "name": "errors workflow",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.errorTrigger",
+      "typeVersion": 1,
+      "position": [
+        -340,
+        -20
+      ],
+      "id": "dda14f5e-8521-48db-8cda-0a04f8ebfef6",
+      "name": "Error Trigger"
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "10VyY2pvk0fdsd_hK2fJC70OoLB5EYRoifdlbW5zJ7k8",
+          "mode": "list",
+          "cachedResultName": "Leads_Test",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/10VyY2pvk0fdsd_hK2fJC70OoLB5EYRoifdlbW5zJ7k8/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1021118253,
+          "mode": "list",
+          "cachedResultName": "Errors",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/10VyY2pvk0fdsd_hK2fJC70OoLB5EYRoifdlbW5zJ7k8/edit#gid=1021118253"
+        },
+        "columns": {
+          "mappingMode": "autoMapInputData",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Error",
+              "displayName": "Error",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Дата",
+              "displayName": "Дата",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        100,
+        -20
+      ],
+      "id": "93c9e236-98b0-4a03-a7c7-0d7ad927157e",
+      "name": "Google Sheets",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "e3XO7ogHGjVUuqGE",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "31cd12f3-50b2-48e5-acdf-b0ad61b5e5f2",
+              "name": "Error",
+              "value": "={{ $json.execution.error }}",
+              "type": "object"
+            },
+            {
+              "id": "fbcceacb-8f2e-41c3-b84d-8424a9a12cc3",
+              "name": "Дата",
+              "value": "={{ \ncurrentDate = new Date().toISOString().split('T')[0]\n}}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -120,
+        -20
+      ],
+      "id": "d12d7abf-95fc-4a0e-a61f-ac4d664e8e7f",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "events": [
+          "init"
+        ]
+      },
+      "type": "n8n-nodes-base.n8nTrigger",
+      "typeVersion": 1,
+      "position": [
+        -360,
+        180
+      ],
+      "id": "1f4eeb74-43b8-41e1-9ce0-5f2477bea05a",
+      "name": "n8n Trigger"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Error Trigger": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Google Sheets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "6381ff45-38ef-4d53-a912-5644cafd4e16",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "b1a124bc9166e611e3a330de37eb024c7411ef434320a799eda0c33bd3a95b6e"
+  },
+  "id": "nosnd1m8bB0bxzAL",
+  "tags": []
+}
